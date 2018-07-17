@@ -1,0 +1,50 @@
+buildscript { repositories { mavenCentral() } }
+
+plugins { id "com.diffplug.gradle.spotless" version "3.5.1" }
+
+apply plugin: 'groovy'
+
+repositories {
+    mavenCentral()
+    maven { url "http://repo.jenkins-ci.org/releases/" }
+}
+
+configurations { ivy }
+
+dependencies {
+    // https://mvnrepository.com/artifact/org.eclipse.hudson/hudson-core
+    compile group: 'org.eclipse.hudson', name: 'hudson-core', version: '3.2.0'
+    compile 'org.codehaus.groovy:groovy-all:2.4.10'
+    compile 'org.jenkins-ci.plugins.workflow:workflow-cps:2.38'
+    compile files('libs/jenkins-library-6dc13801b0223b9d4ea93eb36098773edf504883.jar') //FIXME Only for running the tests, find better option to do this
+    ivy 'org.apache.ivy:ivy:2.4.0'
+    compile 'org.apache.ivy:ivy:2.4.0'
+    testCompile 'junit:junit:4.12'
+}
+
+spotless {
+    groovy {
+        excludeJava() // excludes all Java sources within the Groovy source dirs from formatting
+        paddedCell() // Avoid cyclic ambiguities
+        greclipse().configFile('greclipse.properties')
+    }
+    groovyGradle {
+        // same as groovy, but for .gradle (defaults to '*.gradle')
+        target '*.gradle'
+        paddedCell() // Avoid cyclic ambiguities
+        greclipse().configFile('greclipse.properties')
+    }
+}
+
+
+sourceSets {
+    main {
+        groovy { srcDirs = ['vars/', 'src/']}
+    }
+
+    test {
+        groovy { srcDirs = ['test/']}
+    }
+}
+
+tasks.withType(GroovyCompile) { groovyClasspath += configurations.ivy }

@@ -1,0 +1,68 @@
+#Project Setup
+general:
+  productiveBranch: master
+  defaultNode: ''
+  automaticVersioning: true
+
+#Steps Specific Configuration
+steps:
+  artifactSetVersion:
+    gitCredentialsId: ''
+    commitVersion: false
+    buildTool: 'maven'
+    timestampTemplate: '%Y-%m-%dT%H%M%S%Z'
+
+  mavenExecute:
+    dockerImage: maven:3.5-jdk-8-alpine
+    dockerOptions: ''
+
+  executeNpm:
+    dockerImage: s4sdk/docker-node-browsers
+
+  executeGradle:
+    dockerImage: gradle:4.7.0-jdk8
+
+  executeSourceClearScan:
+    dockerImage: s4sdk/docker-maven-npm
+
+  checkFindbugs:
+    includeFilterFile: s4hana_findbugs_include_filter.xml
+    scanModules:
+      - 'application'
+
+  checkPmd:
+    scanModules:
+      - 'application'
+
+  checkJMeter:
+    dockerImage: famiko/jmeter-base
+    testPlan: ./performance-tests/*
+    reportDirectory: /jmeter-report
+    failThreshold: 100
+    unstableThreshold: 90
+
+  deployToCfWithCli:
+    dockerImage: s4sdk/docker-cf-cli
+    smokeTestStatusCode: '200'
+
+#Stage Specific Configurations
+stages:
+  integrationTests:
+    retry: 1
+    forkCount: 1C
+
+  checkmarxScan:
+    filterPattern: '!**/*.log, !**/*.lock, !**/*.json, !**/*.html, !**/Cx*, **/*.js, **/*.java, **/*.ts'
+    fullScansScheduled: false
+    generatePdfReport: true
+    incremental: true
+    preset: '36'
+    vulnerabilityThresholdLow: 99999
+    vulnerabilityThresholdMedium: 0
+
+  artifactDeployment:
+    nexus:
+      version: nexus3
+
+  productionDeployment:
+    forceDowntimeDeployment: false
