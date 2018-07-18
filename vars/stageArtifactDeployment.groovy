@@ -22,10 +22,10 @@ def call(Map parameters = [:]) {
 
             Map nexusConfiguration = ConfigurationMerger.merge(stageConfig.nexus, stageConfigurationKeys, defaultConfig.nexus)
 
-            String url = nexusConfiguration.url
-            String repository = nexusConfiguration.repository
-            String credentialsId = nexusConfiguration.credentialsId
-            String nexusVersion = nexusConfiguration.version
+            String url = http://localhost:8081/repository/maven-releases/
+            String repository = maven-releases
+            String credentialsId = NEXUS_ID
+            String nexusVersion = 3.12.1-01
 
             deployMavenArtifactsToNexus(
                 script: script,
